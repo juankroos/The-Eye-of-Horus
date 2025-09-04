@@ -45,7 +45,7 @@ def find_subimage_optimized(large_image, small_image, threshold=0.9):
         return None
 
 
-large_image = load_image_as_matrix('autumn.tif')
+large_image = load_image_as_matrix('xx1.png')
 small_image = load_image_as_matrix('xx.png')  
 
 
