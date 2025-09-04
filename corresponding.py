@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#load image
+#load image as matrix
 def load_image_as_matrix(path):
     image = plt.imread(path)
     if image.ndim == 3:  
@@ -9,7 +9,7 @@ def load_image_as_matrix(path):
         
     return image
 
-
+#normalisation of a matrix
 def normalize(matrix):
     return (matrix - np.mean(matrix)) / (np.std(matrix) + 1e-5)
 
