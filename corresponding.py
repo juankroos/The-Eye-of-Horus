@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+#load image
 def load_image_as_matrix(path):
     image = plt.imread(path)
     if image.ndim == 3:  
