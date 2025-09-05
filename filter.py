@@ -12,4 +12,13 @@ def apply_filter(image, filter_type='blur', ksize=(5, 5), sigma=1.0):
     elif filter_type == 'edge':
         return cv2.Canny(image, 100, 200)
     else:
-        raise ValueError("Unsupported filter type. Use 'blur', 'sharpen', or 'edge'.")
+        raise ValueError("unsupported filter type. use 'blur', 'sharpen', or 'edge'.")
+    
+
+path = 'authumn.tif'
+image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+filtered_image = apply_filter(image, filter_type='blur', ksize=(7, 7), sigma=1.5)
+plt.subplot(1, 2, 1)
+plt.title('Original Image')
+plt.imshow(image, cmap='gray')
+plt.axis('off')
