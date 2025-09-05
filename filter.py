@@ -3,22 +3,17 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # funtion to apply a filter to an image
-def apply_filter(image, filter_type='blur', ksize=(5, 5), sigma=1.0):
-    if filter_type == 'blur':
-        return cv2.GaussianBlur(image, ksize, sigma)
-    elif filter_type == 'sharpen':
-        kernel = np.array([[0, -1, 0], [-1, 5,-1], [0, -1, 0]])
-        return cv2.filter2D(image, -1, kernel)
-    elif filter_type == 'edge':
-        return cv2.Canny(image, 100, 200)
-    else:
-        raise ValueError("unsupported filter type. use 'blur', 'sharpen', or 'edge'.")
-    
+def load_image_as_matrix(path):
+    image = plt.imread(path)
+    # Convertir en niveaux de gris si c'est en couleur (3 canaux)
+    if image.ndim == 3:
+        image = np.mean(image, axis=2)
+    return image
 
-path = 'authumn.tif'
-image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-filtered_image = apply_filter(image, filter_type='blur', ksize=(7, 7), sigma=1.5)
-plt.subplot(1, 2, 1)
-plt.title('Original Image')
-plt.imshow(image, cmap='gray')
-plt.axis('off')
+b = load_image_as_matrix('autumn.tif')
+plt.imshow(b)
+plt.imsave('aaa.png',b)
+b1 = b[50:100,75:100]
+plt.imsave('b1.png',b1)
+plt.imshow(b1)
+plt.savefig("pixeled_one")
