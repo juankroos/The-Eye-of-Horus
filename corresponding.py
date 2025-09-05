@@ -45,8 +45,8 @@ def find_subimage_optimized(large_image, small_image, threshold=0.9):
         return None
 
 #load images
-large_image = load_image_as_matrix('xx1.png')
-small_image = load_image_as_matrix('xx.png')  
+large_image = load_image_as_matrix('x2.png')
+small_image = load_image_as_matrix('b1.png')  
 
 #search for the small image in the large image
 position = find_subimage_optimized(large_image, small_image)
