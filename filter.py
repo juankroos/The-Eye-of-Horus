@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 # funtion to apply a filter to an image
 def load_image_as_matrix(path):
     image = plt.imread(path)
-    # Convertir en niveaux de gris si c'est en couleur (3 canaux)
+    # convert to grayscale if it's a color image
     if image.ndim == 3:
         image = np.mean(image, axis=2)
     return image
