@@ -10,10 +10,10 @@ def load_image_as_matrix(path):
         image = np.mean(image, axis=2)
     return image
 
-b = load_image_as_matrix('autumn.tif')
+b = load_image_as_matrix('cheval.jpeg')
 plt.imshow(b)
-plt.imsave('aaa.png',b)
+plt.imsave('aaa_cheval.png',b)
 b1 = b[50:100,75:100]
-plt.imsave('b1.png',b1)
+plt.imsave('b1_cheval.png',b1)
 plt.imshow(b1)
-plt.savefig("pixeled_one")
+plt.savefig("pixeled_one_cheval")
