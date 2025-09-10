@@ -60,4 +60,3 @@ if position:
     plt.axis('off')
     plt.show()
 
-0
