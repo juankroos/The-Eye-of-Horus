@@ -45,8 +45,9 @@ def find_subimage_optimized(large_image, small_image, threshold=0.9):
         return None
 
 #load images
-large_image = load_image_as_matrix('cheval.jpeg')
-small_image = load_image_as_matrix('b1_cheval.png')  
+large_image = load_image_as_matrix('test.jpg')
+
+small_image = load_image_as_matrix('test2.png')  
 
 #search for the small image in the large image
 position = find_subimage_optimized(large_image, small_image)
@@ -58,3 +59,5 @@ if position:
     plt.title('Correspondance trouvée')
     plt.axis('off')
     plt.show()
+
+0

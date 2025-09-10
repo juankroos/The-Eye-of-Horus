@@ -1,0 +1,519 @@
+# === Section : components ===
+
+# --- extrait de E:\The-Eye-of-Horus\yaml\core.yaml ---
+components:
+  schemas:
+    payment_methods:
+      type: object
+      properties: null
+    Currency:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: John Cena
+        code:
+          type: string
+        symbol:
+          type: string
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+        is_default:
+          type: boolean
+          example: false
+        can_send:
+          type: boolean
+          example: true
+        can_receive:
+          type: boolean
+          example: false
+      required:
+      - id
+      - name
+      - code
+      - symbol
+    Country:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        region_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: france
+        iso_3166_2:
+          type: string
+          example: CM
+        iso_3166_3:
+          type: string
+          example: CMR
+        calling_code:
+          type: string
+        is_active:
+          type: boolean
+          example: 'true'
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Currency'
+        payment_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/payment_methods'
+        region:
+          type: object
+          $ref: '#/components/schemas/Region'
+      required:
+      - id
+      - region_id
+      - name
+      - iso_3166_2
+      - iso_3166_3
+      - calling_code
+      - is_active
+    Region:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+      required:
+      - id
+      - name
+      - code
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: You can retrieve your token by using the login endpoints of the
+        IAM microservice.
+
+# --- extrait de E:\The-Eye-of-Horus\yaml\schemas.yaml ---
+components:
+  schemas:
+    Currency:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: John Cena
+        code:
+          type: string
+        symbol:
+          type: string
+        countries:
+          type: array
+          $ref: '#/components/schemas/Country'
+        is_default:
+          type: boolean
+          example: false
+        can_send:
+          type: boolean
+          example: true
+        can_receive:
+          type: boolean
+          example: false
+      required:
+      - id
+      - name
+      - code
+      - symbol
+    Country:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        region_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        iso_3166_2:
+          type: string
+        iso_3166_3:
+          type: string
+        calling_code:
+          type: string
+        currency:
+          $ref: '#/components/schemas/Currency'
+      required:
+      - id
+      - region_id
+      - name
+      - iso_3166_2
+      - iso_3166_3
+      - calling_code
+    Region:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        countries:
+          type: array
+          $ref: '#/components/schemas/Country'
+      required:
+      - id
+      - name
+      - code
+    SetProfilePhone:
+      type: object
+      properties:
+        flow_key:
+          type: string
+          description: The flow key generated from the `initiate` step.
+          example: 01K41FZW85V9T4JM4GES03355Q
+        first_name:
+          type: string
+          maxLength: 255
+          description: The customer's first name.
+          example: John
+        last_name:
+          type: string
+          maxLength: 255
+          description: The customer's last name
+          example: Doe
+        phone_number:
+          type: string
+          maxLength: 32
+          description: Customer's phone number. This field is required when `email`
+            is not present. Must not be greater than 32 characters.
+          example: 237699123456
+        send_mode:
+          type: string
+          description: How to receive the OTP code. This field is required when `phone_number`
+            is present.
+          example: SMS
+          enum:
+          - SMS
+          - WHATSAPP
+      required:
+      - flow_key
+      - first_name
+      - last_name
+      - phone_number
+    SetProfileEmail:
+      type: object
+      properties:
+        flow_key:
+          type: string
+          description: The flow key generated from the `initiate` step.
+          example: 01K41FZW85V9T4JM4GES03355Q
+        first_name:
+          type: string
+          maxLength: 255
+          description: The customer's first name.
+          example: John
+        last_name:
+          type: string
+          maxLength: 255
+          description: The customer's last name
+          example: Doe
+        email:
+          type: string
+          formal: email
+          description: This field is required when <code>phone_number</code> is not
+            present. Must be a valid email address. Must not be greater than 255 characters.
+          example: rempel.chadrick@example.org
+      required:
+      - flow_key
+      - first_name
+      - last_name
+      - email
+    Customer:
+      type: object
+      properties:
+        id:
+          type: string
+        country_id:
+          type: string
+          format: uuid
+          example: null
+        locale:
+          type: string
+          enum:
+          - en
+        email_verified_at:
+          type: date-time
+
+# === Section : paths ===
+
+# --- extrait de E:\The-Eye-of-Horus\yaml\core.yaml ---
+paths:
+  /core/v1/currencies:
+    get:
+      summary: listCurrencies
+      operationId: listCurrencies
+      description: ''
+      parameters:
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: countries
+      - in: query
+        name: filter[search]
+        schema:
+          type: string
+          example: dollar
+      - in: query
+        name: filter[code]
+        schema:
+          type: string
+          example: XAF
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Currency'
+      tags:
+      - REST
+      - CORE
+  /core/v1/currencies/{id}:
+    get:
+      summary: retrieveCurrency
+      operationId: retrieveCurrency
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: countries
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Currency'
+      tags:
+      - REST
+      - CORE
+  /core/v1/regions:
+    get:
+      summary: listRegions
+      operationId: listRegions
+      description: ''
+      parameters:
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: countries
+      - in: query
+        name: filter[search]
+        schema:
+          type: string
+          example: africa
+      - in: query
+        name: filter[code]
+        schema:
+          type: string
+          example: AF
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Region'
+      tags:
+      - REST
+      - CORE
+  /core/v1/regions/{id}:
+    get:
+      summary: ' retrieveRegion'
+      operationId: retrieveRegion
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: contries
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Region'
+      tags:
+      - REST
+      - CORE
+  /core/v1/countries:
+    get:
+      summary: getCountries
+      operationId: getCountries
+      description: ''
+      parameters:
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: currencies, payment_methods
+        description: ''
+      - in: query
+        name: filter[search]
+        schema:
+          type: string
+          example: france
+      - in: query
+        name: filter[iso_3166_2]
+        schema:
+          type: string
+          example: CM
+      - in: query
+        name: filter[iso_3166_3]
+        schema:
+          type: string
+          example: CMR
+      - in: query
+        name: filter[is_active]
+        schema:
+          type: boolean
+          example: 'true'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Country'
+      tags:
+      - REST
+      - CORE
+  /core/v1/countries/{id}:
+    get:
+      summary: retrieveCountry
+      operationId: retrieveCountry
+      description: ''
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: currencies, payment_methods
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Country'
+      tags:
+      - REST
+      - CORE
+    put:
+      summary: updateCountry
+      operationId: updateCountry
+      description: The only allowed field to update is `is_active`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: include
+        schema:
+          type: string
+          example: currencies, payment_methods
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Country'
+      tags:
+      - REST
+      - CORE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_active:
+                  type: boolean
+                  description: Whether the country is active or not.
+                  example: true
+                  nullable: false
+              required:
+              - is_active
+    delete:
+      summary: removeCountry
+      operationId: removeCountry
+      description: 'As the country is an immutable entity, it cannot be removed from
+        the database. This endpoint
+
+        will instead deactivate the country (set `is_active` to false), so it will
+        no longer be available for use.'
+      parameters: []
+      responses: {}
+      tags:
+      - REST
+      - CORE
+    parameters:
+    - in: path
+      name: id
+      description: The ID of the country.
+      example: architecto
+      required: true
+      schema:
+        type: string
+

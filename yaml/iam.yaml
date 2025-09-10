@@ -1,0 +1,591 @@
+openapi: 3.1.0
+info:
+  title: 'Zeney API Documentation'
+  description: "Zeney API documentation."
+  version: 1.0.0
+servers:
+  - url: 'https://zn-svc-gateway.onrender.com'
+tags:
+  - name: FLOW
+    description: 'API following the FLOW design. Optimized for mobile use.'
+  - name: REST
+    description: 'API following the REST design.'
+  - name: RPC
+    description: 'Internal inter-services API'
+  - name: IAM
+    description: 'IAM microservice'
+components:
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'You can retrieve your token by using the login endpoints of the IAM microservice.'
+security:
+  - default: []
+paths:
+  /iam/v1/flow/register/initiate:
+    get:
+      summary: registerInitiate
+      operationId: registerInitiate
+      description: 'Initializes the state of the registration flow, and generates a flow key.'
+      parameters: [ ]
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flow_key:
+                    type: string
+                    example: 01K41FZW85V9T4JM4GES03355Q
+                  countries:
+                    type: array
+                    items:
+                      $ref: "./schemas.yaml#/components/schemas/Country"
+                required:
+                  - flow_key
+                  - countries
+      tags:
+        - FLOW
+        - IAM
+  /iam/v1/flow/register/set-country:
+    post:
+      summary: registerSetCountry
+      operationId: registerSetCountry
+      description: 'Receive the `country_id` and link it to the created user.'
+      parameters: [ ]
+      responses:
+        200:
+          description: 'The `country_id` is saved in the flow state.'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+      tags:
+        - FLOW
+        - IAM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  description: 'The flow key generated from the `initiate` step.'
+                  example: 01K41FZW85V9T4JM4GES03355Q
+                country_id:
+                  type: string
+                  format: uuid
+                  description: 'An UUID of the country to link.'
+                  example: a4855dc5-0acb-33c3-b921-f4291f719ca0
+              required:
+                - flow_key
+                - country_id
+  /iam/v1/flow/register/set-profile:
+    post:
+      summary: registerSetProfile
+      operationId: registerSetProfile
+      description: "Sets the profile of the registrating customer, and send an OTP code to the customer's phone number or email."
+      parameters: [ ]
+      responses:
+        200:
+          description: 'The `country_id` is saved in the flow state.'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        424:
+          description: 'The system was not able to send the OTP'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                required:
+                  - success
+      tags:
+        - FLOW
+        - IAM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "./schemas.yaml#/components/schemas/SetProfileEmail"
+                - $ref: "./schemas.yaml#/components/schemas/SetProfilePhone"
+
+  /iam/v1/flow/register/verify-code:
+    post:
+      summary: registerVerifyCode
+      operationId: registerVerifyCode
+      description: "Verifies the OTP code sent to the customer's phone number or email."
+      parameters: [ ]
+      responses:
+        200:
+          description: 'The OTP code is valid'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: true
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        422:
+          description: 'The OTP code is invalid'
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  success: false
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                required:
+                  - success
+
+      tags:
+        - FLOW
+        - IAM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  example: '01K41FZW85V9T4JM4GES03355Q'
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                  description: 'Must match the regex /^[0-9]{6}$/.'
+                  example: '564255'
+              required:
+                - flow_key
+                - code
+  /iam/v1/flow/register/set-password:
+    post:
+      summary: registerSetPassword
+      operationId: registerSetPassword
+      description: 'Sets the password for the customer, and completes the registration flow.'
+      parameters: [ ]
+      responses:
+        200:
+          description: 'The password set by the customer. Completing this step finalizes the registration flow.'
+          content:
+            application/json:
+              schema:
+                type: object
+                example: true
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  token:
+                    type: string
+                    example: "1|TP2eyLbLoXA2btzb1UTOzv2h2W3UBqJtbcmzaN2Gd2ad8610"
+                required:
+                  - success
+                  - token
+        500:
+            description: 'Internal Server Error'
+            content:
+            application/json:
+              schema:
+                type: object
+                example: false
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                required:
+                  - success
+      tags:
+        - FLOW
+        - IAM
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  description: ''
+                  example: '01K41FZW85V9T4JM4GES03355Q'
+                password:
+                  type: string
+                  minLength: 8
+                  description: ''
+                  example: "Example@134"
+                token:
+                  type: string
+                  example: "1|TP2eyLbLoXA2btzb1UTOzv2h2W3UBqJtbcmzaN2Gd2ad8610"
+                customer:
+
+              required:
+                - flow_key
+                - password
+
+  /iam/v1/flow/pin-code-setup/initiate:
+    get:
+      summary: pinCodeSetupInitiate
+      operationId: pinCodeSetupInitiate
+      description: ''
+      parameters: [ ]
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - FLOW
+  /iam/v1/flow/pin-code-setup/verify-code:
+    post:
+      summary: pinCodeSetupVerifyCode
+      operationId: pinCodeSetupVerifyCode
+      description: 'Verify the current transaction pin code. This step is mandatory only if the customer has already set up a transaction pin.'
+      parameters: [ ]
+      responses: { }
+      tags:
+        - FLOW
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  description: ''
+                  example: architecto
+                code:
+                  type: string
+                  description: 'Must be at least 4 characters.'
+                  example: ngzm
+              required:
+                - flow_key
+                - code
+  /iam/v1/flow/pin-code-setup/set-code:
+    post:
+      summary: pinCodeSetupSetCode
+      operationId: pinCodeSetupSetCode
+      description: ''
+      parameters: [ ]
+      responses: { }
+      tags:
+        - FLOW
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  description: ''
+                  example: architecto
+                code:
+                  type: string
+                  description: 'Must be at least 4 characters.'
+                  example: ngzm
+              required:
+                - flow_key
+                - code
+  /iam/v1/flow/mfa-enable/initiate:
+    get:
+      summary: mfaEnableInitiate
+      operationId: mfaEnableInitiate
+      description: ''
+      parameters: [ ]
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - FLOW
+  /iam/v1/flow/mfa-enable/set-mode:
+    post:
+      summary: mfaEnableSetMode
+      operationId: mfaEnableSetMode
+      description: 'Set the mode for the 2FA. The used mode cannot be changed after the 2FA setup is completed.'
+      parameters: [ ]
+      responses: { }
+      tags:
+        - FLOW
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  description: ''
+                  example: architecto
+                mode:
+                  type: string
+                  description: ''
+                  example: architecto
+                  enum:
+                    - passcode
+                    - authenticator
+              required:
+                - flow_key
+                - mode
+  /iam/v1/flow/mfa-enable/verify-code:
+    post:
+      summary: 'Verify the generated code and enable the 2FA.'
+      operationId: verifyTheGeneratedCodeAndEnableThe2FA
+      description: "The code will be generated either via OTP sent to the email/phone number, or a TOTP code\ngenerated by the authenticator app. This corresponds to the selected mode in the previous step."
+      parameters: [ ]
+      responses: { }
+      tags:
+        - FLOW
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flow_key:
+                  type: string
+                  description: ''
+                  example: architecto
+                code:
+                  type: string
+                  description: 'Must be at least 6 characters. Must not be greater than 10 characters.'
+                  example: ngzmiy
+              required:
+                - flow_key
+                - code
+  /iam/v1/admin/login:
+    post:
+      summary: adminLogin
+      operationId: adminLogin
+      description: 'Authenticates administration accounts.'
+      parameters: [ ]
+      responses: { }
+      tags:
+        - REST
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: gbailey@example.net
+                password:
+                  type: string
+                  description: 'Must be at least 8 characters.'
+                  example: '+-0pBNvYgxwmi/#iw'
+                device:
+                  type: string
+                  description: ''
+                  example: architecto
+                  nullable: true
+              required:
+                - email
+                - password
+      security: [ ]
+  /iam/v1/admin/logout:
+    get:
+      summary: adminLogout
+      operationId: adminLogout
+      description: 'Allows administrators to logout from their active session.'
+      parameters: [ ]
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - REST
+  /iam/v1/admin:
+    post:
+      summary: createAdmin
+      operationId: createAdmin
+      description: 'Creates a new admin account.'
+      parameters: [ ]
+      responses:
+        201:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  data:
+                    id: 0198fb95-d2b8-7269-a88c-a9c376f0b23b
+                    country_id: 0198f70a-9628-72e1-8c0f-b5749649bb3d
+                    email: admin@zeney.com
+                    name: 'Super Admin'
+                    phone_number: null
+                    is_active: true
+                    locale: en
+                    actions:
+                      - core.country.read
+                      - core.country.update
+                      - iam.admin.activate
+                      - iam.admin.create
+                      - iam.admin.deactivate
+                      - iam.admin.delete
+                      - iam.admin.update
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 0198fb95-d2b8-7269-a88c-a9c376f0b23b
+                      country_id:
+                        type: string
+                        example: 0198f70a-9628-72e1-8c0f-b5749649bb3d
+                      email:
+                        type: string
+                        example: admin@zeney.com
+                      name:
+                        type: string
+                        example: 'Super Admin'
+                      phone_number:
+                        type: string
+                        example: null
+                      is_active:
+                        type: boolean
+                        example: true
+                      locale:
+                        type: string
+                        example: en
+                      actions:
+                        type: array
+                        example:
+                          - core.country.read
+                          - core.country.update
+                          - iam.admin.activate
+                          - iam.admin.create
+                          - iam.admin.deactivate
+                          - iam.admin.delete
+                          - iam.admin.update
+                        items:
+                          type: string
+      tags:
+        - REST
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                country_id:
+                  type: string
+                  description: 'Must be a valid UUID.'
+                  example: 6ff8f7f6-1eb3-3525-be4a-3932c805afed
+                role_id:
+                  type: string
+                  description: 'Must be a valid UUID. The <code>id</code> of an existing record in the roles table.'
+                  example: 6b72fe4a-5b40-307c-bc24-f79acf9a1bb9
+                name:
+                  type: string
+                  description: ''
+                  example: architecto
+                email:
+                  type: string
+                  description: 'Must be a valid email address. Must not be greater than 255 characters.'
+                  example: zbailey@example.net
+                phone_number:
+                  type: string
+                  description: 'Must not be greater than 32 characters.'
+                  example: i
+                  nullable: true
+                password:
+                  type: string
+                  description: ''
+                  example: architecto
+                is_active:
+                  type: boolean
+                  description: ''
+                  example: true
+                  nullable: true
+                locale:
+                  type: string
+                  description: ''
+                  example: en
+                  nullable: true
+                  enum:
+                    - en
+              required:
+                - country_id
+                - role_id
+                - name
+                - email
+                - password

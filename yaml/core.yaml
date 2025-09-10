@@ -1,0 +1,372 @@
+openapi: 3.0.3
+info:
+  title: 'Zeney Core API Documentation'
+  description: "Zeney's core microservice API documentation."
+  version: 1.0.0
+servers:
+  -
+    url: 'http://core.zeney.test'
+tags:
+  -
+    name: REST
+    description: ''
+  -
+    name: RPC
+    description: ''
+components:
+  schemas:
+    payment_methods:
+      type: object
+      properties:
+
+    Currency:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "John Cena"
+        code:
+          type: string
+        symbol:
+          type: string
+        countries:
+          type: array
+          items:
+            $ref: "#/components/schemas/Country"
+        is_default:
+          type: boolean
+          example: false
+        can_send:
+          type: boolean
+          example: true
+        can_receive:
+          type: boolean
+          example: false
+      required:
+        - id
+        - name
+        - code
+        - symbol
+    Country:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        region_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: 'france'
+        iso_3166_2:
+          type: string
+          example: 'CM'
+        iso_3166_3:
+          type: string
+          example: 'CMR'
+        calling_code:
+          type: string
+        is_active:
+          type: boolean
+          example: 'true'
+        currencies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Currency"
+        payment_methods:
+          type: array
+          items:
+            $ref: "#/components/schemas/payment_methods"
+        region:
+          type: object
+          $ref: "#/components/schemas/Region"
+
+      required:
+        - id
+        - region_id
+        - name
+        - iso_3166_2
+        - iso_3166_3
+        - calling_code
+        - is_active
+    Region:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        countries:
+          type: array
+          items:
+            $ref: "#/components/schemas/Country"
+
+      required:
+        - id
+        - name
+        - code
+  securitySchemes:
+    default:
+      type: http
+      scheme: bearer
+      description: 'You can retrieve your token by using the login endpoints of the IAM microservice.'
+security:
+  -
+    default: []
+paths:
+  '/core/v1/currencies':
+    get:
+      summary: "listCurrencies"
+      operationId: listCurrencies
+      description: ''
+      parameters:
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: 'countries'
+        - in: query
+          name: filter[search]
+          schema:
+            type: string
+            example: "dollar"
+        - in: query
+          name: filter[code]
+          schema:
+            type: string
+            example: 'XAF'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Currency"
+      tags:
+        - REST
+        - CORE
+  '/core/v1/currencies/{id}':
+    get:
+      summary: 'retrieveCurrency'
+      operationId: retrieveCurrency
+      description: ''
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: 'countries'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Currency"
+
+      tags:
+        - REST
+        - CORE
+  '/core/v1/regions':
+    get:
+      summary: 'listRegions'
+      operationId: listRegions
+      description: ''
+      parameters:
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: 'countries'
+        - in: query
+          name: filter[search]
+          schema:
+            type: string
+            example: 'africa'
+        - in: query
+          name: filter[code]
+          schema:
+            type: string
+            example: 'AF'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Region"
+      tags:
+        - REST
+        - CORE
+  '/core/v1/regions/{id}':
+    get:
+      summary: ' retrieveRegion'
+      operationId:  retrieveRegion
+      description: ''
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: 'contries'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Region"
+      tags:
+        - REST
+        - CORE
+  '/core/v1/countries':
+    get:
+      summary: 'getCountries'
+      operationId: getCountries
+      description: ''
+      parameters:
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: 'currencies, payment_methods'
+          description: ''
+        - in: query
+          name: filter[search]
+          schema:
+            type: string
+            example: 'france'
+        - in: query
+          name: filter[iso_3166_2]
+          schema:
+            type: string
+            example: 'CM'
+        - in: query
+          name: filter[iso_3166_3]
+          schema:
+            type: string
+            example: 'CMR'
+        - in: query
+          name: filter[is_active]
+          schema:
+            type: boolean
+            example: 'true'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+      tags:
+        - REST
+        - CORE
+  '/core/v1/countries/{id}':
+    get:
+      summary: 'retrieveCountry'
+      operationId: retrieveCountry
+      description: ''
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: 'currencies, payment_methods'
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+      tags:
+        - REST
+        - CORE
+    put:
+      summary: 'updateCountry'
+      operationId: updateCountry
+      description: 'The only allowed field to update is `is_active`.'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - in: query
+          name: include
+          schema:
+            type: string
+            example: "currencies, payment_methods"
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+      tags:
+        - REST
+        - CORE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_active:
+                  type: boolean
+                  description: 'Whether the country is active or not.'
+                  example: true
+                  nullable: false
+              required:
+                - is_active
+    delete:
+      summary: 'removeCountry'
+      operationId: removeCountry
+      description: "As the country is an immutable entity, it cannot be removed from the database. This endpoint\nwill instead deactivate the country (set `is_active` to false), so it will no longer be available for use."
+      parameters: [ ]
+      responses: { }
+      tags:
+        - REST
+        - CORE
+    parameters:
+      - in: path
+        name: id
+        description: 'The ID of the country.'
+        example: architecto
+        required: true
+        schema:
+          type: string
