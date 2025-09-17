@@ -13,6 +13,7 @@ def load_image_as_matrix(path):
 def normalize(matrix):
     return (matrix - np.mean(matrix)) / (np.std(matrix) + 1e-5)
 
+
 #optimized function to find the position of a small image within a larger image using normalized cross-correlation
 def find_subimage_optimized(large_image, small_image, threshold=0.9):
     
