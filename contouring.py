@@ -78,7 +78,7 @@ test = plt.imread('billes.png')
 
 # Tracé
 a = plt.imshow(contournaif(test[:,:,0]))
-plt.figure(figsize=(6, 6))
+#plt.figure(figsize=(6, 6))
 #plt.scatter(points[:, 0], points[:, 1], color='blue', label='Points')
 #plt.gca().add_patch(plt.Rectangle((x, y), s, s, edgecolor='red', facecolor='none', lw=2, label='Carré englobant'))
 #plt.title("Carré englobant autour des points")
