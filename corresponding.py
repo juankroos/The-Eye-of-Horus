@@ -60,4 +60,3 @@ if position:
     plt.title('Correspondance trouvée')
     plt.axis('off')
     plt.show()
-
