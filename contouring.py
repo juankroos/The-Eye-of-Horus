@@ -88,3 +88,18 @@ plt.legend()
 #plt.axis('equal')
 plt.grid(True)
 plt.show()
+
+#fonction for warching new files added
+def watch_new_file(file_path, callback):
+    import time
+    import os
+
+    last_modified = os.listdir.getmtime(file_path)
+
+    while True:
+        time.sleep(1)  # Check every second
+        current_modified = os.path.getmtime(file_path)
+        if current_modified != last_modified:
+            last_modified = current_modified
+            callback(file_path)
+    
