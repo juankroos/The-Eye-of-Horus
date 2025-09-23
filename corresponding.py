@@ -61,7 +61,6 @@ if position:
     plt.axis('off')
     plt.show()
 
-
 '''
 
 import requests
