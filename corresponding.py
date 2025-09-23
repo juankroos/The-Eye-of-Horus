@@ -62,7 +62,6 @@ if position:
     plt.show()
 
 
-
 '''
 
 import requests
