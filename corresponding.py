@@ -60,3 +60,34 @@ if position:
     plt.title('Correspondance trouvée')
     plt.axis('off')
     plt.show()
+
+
+'''
+
+import requests
+
+MCP_BASE_URL = "http://127.0.0.1:8000/mcp"
+
+def list_tools():
+    url = f"{MCP_BASE_URL}/tools"
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        tools = response.json()
+        print("\n Tools MCP enregistrés :\n")
+        for tool in tools:
+            print(f" {tool['name']}")
+            print(f"    Endpoint : {MCP_BASE_URL}/tools/{tool['name']}")
+            print(f"    Input type : {tool['input_type']}")
+            print(f"    Output type : {tool['output_type']}\n")
+    except Exception as e:
+        print(" Erreur lors de la récupération des tools MCP :", e)
+
+if __name__ == "__main__":
+    list_tools()
+    '''
