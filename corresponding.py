@@ -38,7 +38,7 @@ def find_subimage_optimized(large_image, small_image, threshold=0.9):
     max_corr = np.unravel_index(np.argmax(correlation_map), correlation_map.shape)
     max_value = np.max(correlation_map)
 
-    if max_value >= threshold:
+    if max_value >= threshold: 
         print(f"match found at position: {max_corr} with similarity {max_value}")
         return max_corr
     else:
